@@ -576,7 +576,8 @@ def feature_importance():
 
 def dt_vs_rf():
     """
-    Compares DT and RF models using bootstraped data.
+    Comparing DT and RF models on the given dataset. For uncertainty quantification
+    we generate a 95% confidence interval for model misclassification rate.
     """
     train, test = dataset_extraction()
 
