@@ -288,14 +288,14 @@ def hw_tree_full(train, test):
     start = time.time()
     t = Tree().build(X_train_matrix, y_train_matrix)
 
-    print("Build finished in: {} seconds".format(time.time() - start))
+    # print("Build finished in: {} seconds".format(time.time() - start))
 
     start_pred = time.time()
 
     pred_train = t.predict(X_train_matrix)
     pred_test = t.predict(X_test_matrix)
 
-    print("Predictions finished in: {} seconds".format(time.time() - start_pred))
+    # print("Predictions finished in: {} seconds".format(time.time() - start_pred))
 
     # Compute the error rate on training and test set
     mc_train = sum([pred_train[i] != y_train_matrix[i] for i in range(len(pred_train))]) / len(pred_train)
@@ -305,6 +305,7 @@ def hw_tree_full(train, test):
     se_train = np.sqrt(mc_train * (1 - mc_train) / len(pred_train))
     se_test = np.sqrt(mc_test * (1 - mc_test) / len(pred_test))
 
+    """
     print("Full decision tree")
     print("Training set")
     print("Computed MC rate: {:.4f}".format(mc_train))
@@ -312,6 +313,7 @@ def hw_tree_full(train, test):
     print("Test set")
     print("Computed MC rate: {:.4f}".format(mc_test))
     print("Standard error: {:.4f}".format(se_test))
+    """
 
     return (mc_train, se_train), (mc_test, se_test)
 
@@ -328,13 +330,13 @@ def hw_randomforests(train, test):
     start = time.time()
     t = RandomForest(rand = random.Random(1), n = 100).build(X_train_matrix, y_train_matrix)
 
-    print("Build finished in: {} seconds".format(time.time() - start))
+    # print("Build finished in: {} seconds".format(time.time() - start))
 
     start_pred = time.time()
     pred_train = t.predict(X_train_matrix)
     pred_test = t.predict(X_test_matrix)
 
-    print("Predictions finished in {:.4f} seconds".format(time.time() - start_pred))
+    # print("Predictions finished in {:.4f} seconds".format(time.time() - start_pred))
 
     # Compute the error rate on training and test set
     mc_train = sum([pred_train[i] != y_train_matrix[i] for i in range(len(pred_train))]) / len(pred_train)
@@ -344,8 +346,7 @@ def hw_randomforests(train, test):
     se_train = np.sqrt(mc_train * (1 - mc_train) / len(pred_train))
     se_test = np.sqrt(mc_test * (1 - mc_test) / len(pred_test))
 
-    print(se_test)
-
+    """
     print("Random forest")
     print("Training set")
     print("Computed MC rate: {:.4f}".format(mc_train))
@@ -353,6 +354,7 @@ def hw_randomforests(train, test):
     print("Test set")
     print("Computed MC rate: {:.4f}".format(mc_test))
     print("Standard error: {:.4f}".format(se_test))
+    """
 
     return (mc_train, se_train), (mc_test, se_test)
 
@@ -576,4 +578,6 @@ def root_dist(num_trees = 100):
     plt.show()
 
 if __name__ == "__main__":
-    root_dist(num_trees = 100)
+    train, test = dataset_extraction()
+    print(hw_tree_full(train, test))
+    print(hw_randomforests(train, test))

@@ -38,7 +38,6 @@ class HWTreeTests(unittest.TestCase):
                           n = 20)
         p = rf.build(self.X, self.y)
         imp = p.importance()
-        print(imp)
         self.assertTrue(len(imp), self.X.shape[1])
         
     def test_signature_hw_tree_full(self):
