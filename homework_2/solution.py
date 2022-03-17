@@ -158,12 +158,12 @@ class OrdinalLogReg:
         
         return predictions
 
-def naive_evaluation(X, y, model, cache = False, label = "model_weights"):
+def naive_evaluation(X, y, model):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 41)
 
     start = time.time()
 
-    model.build(X_train, y_train, cache = cache, label = label)
+    model.build(X_train, y_train)
 
     end = time.time()
 
