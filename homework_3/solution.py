@@ -8,8 +8,6 @@ from numpy.random import default_rng
 from scipy.optimize import minimize
 from sklearn.model_selection import LeaveOneOut
 
-from sklearn.linear_model import Ridge
-
 class RidgeReg:
     def __init__(self, l):
         self.l = l
