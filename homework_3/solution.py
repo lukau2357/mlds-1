@@ -164,5 +164,4 @@ def loocv_score(model, X_train, y_train, mu_y = None, std_y = None):
     return scores.mean()
 
 if __name__ == "__main__":
-    # superconductor(X_train, y_train, X_test, y_test)
     unittest.main()
