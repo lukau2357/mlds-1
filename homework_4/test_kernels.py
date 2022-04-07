@@ -2,10 +2,7 @@ import unittest
 from unittest.mock import patch
 import numpy as np
 
-# from hw_kernels import SVR, RBF, Polynomial, \
-#    KernelizedRidgeRegression
-
-from hw_kernels import Polynomial, RBF, KernelizedRidgeRegression
+from hw_kernels import SVR, RBF, Polynomial, KernelizedRidgeRegression
 
 class Linear:
     """An example of a kernel."""

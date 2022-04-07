@@ -1,4 +1,0 @@
-- 0.01 regularization used for all models on the sine dataset. In addition, 0.6 Vapnik loss
-  threshold was used for SVR.
-- small sigma values for SVR with RBF on the sine dataset produced dense solutions, which was
-not desireable (a lot of support vectors)
