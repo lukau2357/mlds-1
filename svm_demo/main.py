@@ -2,18 +2,57 @@ import numpy as np
 import cvxopt
 import matplotlib.pyplot as plt
 
-from sklearn.datasets import make_blobs
+from sklearn import datasets
 
 color_map = {1: "#F8766D", -1: "#00BFC4"}
 cvxopt.solvers.options["show_progress"] = False
 
-"""
-TODO:
-    - Add kernel support.
-"""
+# Kernel support added
+
+class Linear:
+    """
+    Linear kernel.
+    """
+    def __init__(self):
+        pass
+
+    def __call__(self, A, B):
+        return A.dot(B.T)
+
+class Polynomial:
+    """
+    Polynomial kernel
+    """
+    def __init__(self, M = 1):
+        self.M = M
+    
+    def __call__(self, A, B):
+        return (1 + A.dot(B.T)) ** self.M
+
+class RBF:
+    """
+    RBF kernel
+    """
+    def __init__(self, sigma = 1):
+        self.sigma = sigma
+    
+    def __call__(self, A, B):
+        if len(A.shape) == 1:
+            A = A.reshape(1, A.shape[0])
+        
+        if len(B.shape) == 1:
+            B = B.reshape(1, B.shape[0])
+
+        anorms = np.linalg.norm(A, axis = 1) ** 2
+        bnorms = np.linalg.norm(B, axis = 1) ** 2
+        gram = A.dot(B.T)
+        res = anorms.reshape(gram.shape[0], 1) - 2 * gram + bnorms
+        res = np.exp(-1 / (2 * (self.sigma ** 2)) * res)
+
+        return res[0, 0] if (res.shape == (1, 1)) else res.flatten() if (res.shape[0] == 1 or res.shape[1] == 1) else res
 
 class SVM_HardMargin:
-    def __init__(self, sv_threshold = 1e-8):
+    def __init__(self, sv_threshold = 1e-8, kernel = Linear()):
         """
         It follows from Karush-Kuhn-Tucker conditions that for the corresponding Lagrange
         multiplier for a given observation is 0. However, due to numerical precision issues
@@ -21,9 +60,14 @@ class SVM_HardMargin:
         between support vectors given a value of the Lagrange multiplier. 
         """
         self.sv_threshold = sv_threshold
+        self.kernel = kernel
 
     def fit(self, X, y):
-        K = cvxopt.matrix(X.dot(X.T))
+        kernel_matrix = self.kernel(X, X)
+        self.X_train = X
+        self.y_train = y
+
+        K = cvxopt.matrix(kernel_matrix)
         P = cvxopt.matrix(K * np.outer(y, y))
         q = cvxopt.matrix(np.full(X.shape[0], -1).astype("float"))
         G = cvxopt.matrix(np.identity(X.shape[0]).astype("float") * (-1))
@@ -31,22 +75,33 @@ class SVM_HardMargin:
         h = cvxopt.matrix(np.zeros(X.shape[0]).astype("float"))
         b = cvxopt.matrix(0.0)
 
-        solution = np.array(cvxopt.solvers.qp(P, q, G, h, A, b)["x"]).flatten()
-        self.sv = solution > self.sv_threshold
-        self.w = np.sum(X[self.sv].T * (solution[self.sv]* y[self.sv]), axis = 1)
-        self.w0 = (y[self.sv].astype("float") - X[self.sv].dot(self.w)).mean()
+        self.alpha = np.array(cvxopt.solvers.qp(P, q, G, h, A, b)["x"]).flatten()
+        self.sv = self.alpha > self.sv_threshold
+
+        if isinstance(self.kernel, Linear):
+            self.w = (X[self.sv].T.dot(self.alpha[self.sv] * y[self.sv]))
+        
+        self.w0 = (y[self.sv].astype("float") - self.kernel(X[self.sv], X).dot(self.alpha * y)).mean()
+
+    def predict(self, X):
+        return np.sign(self.kernel(X, self.X_train).dot(self.alpha * self.y_train) + self.w0)
 
 class SVM_SoftMargin():
-    def __init__(self, sv_threshold = 1e-5, C = 1, C_error = 1e-9):
+    def __init__(self, C = 1, error = 1e-8, kernel = Linear()):
         """
-        C - regularization hyperparameter for soft margin SVM
+        C - regularization hyperparameter for soft margin SVM. Error term kept for the same
+        reasons as with hard margin case.
         """
-        self.sv_threshold = sv_threshold
         self.C = C
-        self.C_error = C_error
+        self.error = error
+        self.kernel = kernel
 
     def fit(self, X, y):
-        K = cvxopt.matrix(X.dot(X.T))
+        kernel_matrix = self.kernel(X, X)
+        self.X_train = X
+        self.y_train = y
+
+        K = cvxopt.matrix(kernel_matrix)
         P = cvxopt.matrix(K * np.outer(y, y))
         q = cvxopt.matrix(np.full(X.shape[0], -1).astype("float"))
         A = cvxopt.matrix(y.reshape(1, X.shape[0]).astype("float"))
@@ -60,17 +115,20 @@ class SVM_SoftMargin():
         G = cvxopt.matrix(np.vstack((G_1, G_2)).astype("float"))
         h = cvxopt.matrix(np.hstack((h1, h2)).astype("float"))
 
-        solution = np.array(cvxopt.solvers.qp(P, q, G, h, A, b)["x"]).flatten()
-        self.sv = solution > self.sv_threshold
+        self.alpha = np.array(cvxopt.solvers.qp(P, q, G, h, A, b)["x"]).flatten()
+        self.sv = self.alpha > self.error
 
-        self.w = np.sum((X[self.sv].T * (solution[self.sv] * y[self.sv])), axis = 1)
-        # Slightly different that the hard margin case, for the intercept we average over 
-        # support vectors for which \xi_{i} = 0.
-        b = self.sv & (self.C - solution > self.C_error)
-        self.w0 = (y[b].astype("float") - X[b].dot(self.w)).mean()
+        if isinstance(self.kernel, Linear):
+            self.w = (X[self.sv].T.dot(self.alpha[self.sv] * y[self.sv]))
 
-def generate_dataset(n_samples = 200, std = 1):
-    X, y =  make_blobs(n_samples = n_samples, centers = 2, cluster_std = std, random_state = 3)
+        b = self.sv & (self.alpha < self.C - self.error)
+        self.w0 = (y[b].astype("float") - self.kernel(X[b], X).dot(self.alpha * y)).mean()
+
+    def predict(self, X):
+        return np.sign(self.kernel(X, self.X_train).dot(self.alpha * self.y_train) + self.w0)
+
+def generate_dataset(n_samples = 200, std = 0.5):
+    X, y =  datasets.make_blobs(n_samples = n_samples, centers = 2, cluster_std = std, random_state = 3)
     y[y == 0] = -1
     return X, y
 
