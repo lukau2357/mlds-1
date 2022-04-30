@@ -547,4 +547,4 @@ if __name__ == "__main__":
     # housing_krr_poly(lambdas)
     # housing_krr_rbf(lambdas, sigmas)
     # housing_svr_poly(lambdas, epsilon = 10)
-    housing_svr_rbf(lambdas, sigmas, epsilon = 10)
+    # housing_svr_rbf(lambdas, sigmas, epsilon = 10)
