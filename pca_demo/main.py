@@ -123,7 +123,7 @@ if __name__ == "__main__":
     ax[0].set_xlabel("PC1")
     ax[0].set_ylabel("PC2")
 
-    ax[1].set_title("PCA with singular value composition of the data matrix")
+    ax[1].set_title("PCA with singular value decomposition of the data matrix")
     ax[1].legend()
     ax[1].set_xlabel("PC1")
     ax[1].set_ylabel("PC2")
