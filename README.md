@@ -15,3 +15,6 @@ Implementation of standard risk estimation techniques: validation set, train-tes
 
 ## SVM Demo
 Implementation of hard margin and soft margin SVM using CVXOPT library for quadratic programming. 2D demonstrations added for both algorithms.
+
+## PCA Demo
+Principal component analysis implementation with numpy, and demonstration using the well-known Iris dataset.
