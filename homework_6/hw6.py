@@ -5,14 +5,10 @@ import time
 import json
 import matplotlib.pyplot as plt
 
-sys.path.append("..") # Very ad-hoc fix of local library import exceptions...
-
 from scipy.special import softmax
 from scipy.optimize import fmin_l_bfgs_b
 from enum import Enum
 from sklearn.model_selection import KFold, StratifiedKFold
-from homework_4.hw_kernels import SVR, RBF
-from homework_2.solution import MultinomialLogReg
 from sklearn.linear_model import LogisticRegression
 
 # Utils
@@ -298,7 +294,7 @@ class ANNClassification():
         return self.w
 
 class ANNRegression():
-    def __init__(self, units = [], lambda_ = 0.001, activations = [], dactivations = [], seed = 3):
+    def __init__(self, units = [], lambda_ = 0.001, activations = [], dactivations = [], seed = 4):
         self.net = Network(units, square_loss, dsquare_loss, NetworkType.R, lambda_ = lambda_,
         activations = activations, dactivations = dactivations, seed = seed)
 
@@ -337,6 +333,9 @@ def house_grid_search_reg(X, y, lambda_ = [0.01, 0.1, 0.5],
     
     best_mse, best_l, best_u = None, None, None
     cv = KFold(n_splits = k)
+
+    sys.path.append("..")
+    from homework_4.hw_kernels import SVR, RBF
 
     for u in layers:
         for l in lambda_:
@@ -405,6 +404,9 @@ def house_grid_search_class(X, y, lambda_ = [0.01, 0.1, 0.5],
     
     best_ll, best_l, best_u = None, None, None
     cv = StratifiedKFold(n_splits = k)
+
+    sys.path.append("..")
+    from homework_2.solution import MultinomialLogReg
 
     for l in lambda_:
         for u in layers:
@@ -607,9 +609,13 @@ def create_final_predictions(lambda_ = 0.01, units = [20, 50]):
             f.write("\n")
 
 if __name__ == "__main__":
+    X, y = housing_class_load()
+    house_grid_search_class(X, y)
+    '''
     X, y, mu, std = read_huge_train(f = 0.1)
     lambdas = [0.5]
     units = [[10], [10, 20], [10, 10, 10]]
     # huge_dataset_cv(X, y, units, lambdas)
     # huge_dataset_comparison()
     create_final_predictions()
+    '''

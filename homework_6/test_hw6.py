@@ -4,7 +4,6 @@ import csv
 
 from hw6 import ANNClassification, ANNRegression
 
-
 class HW6Tests(unittest.TestCase):
 
     def setUp(self):
