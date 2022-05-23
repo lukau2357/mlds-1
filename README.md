@@ -13,6 +13,11 @@ Kernelized ridge regression and support vector regression implementation. Grid s
 ## Homework 5
 Implementation of standard risk estimation techniques: validation set, train-test split, cross-validation. Demonstration and interpretation of risk estimation techniques on a toy DGP (implemented in R).
 
+## Homework 6
+Implementation of deep neural networks and the backpropagation algorithm. Supported activations per layer are
+ReLU and sigmoid, but this can easily be extended. Verification of correctness of backpropagation is also present, computed partial derivatives are compared with numerical estimates. Comparison of deep neural networks and machine learning algorithms implemented in previous homeworks
+on the housing dataset. Hyperparameter optimization on a ~50k records dataset.
+
 ## SVM Demo
 Implementation of hard margin and soft margin SVM using CVXOPT library for quadratic programming. 2D demonstrations added for both algorithms.
 
